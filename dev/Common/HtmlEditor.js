@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import window from 'window';
 import _ from '_';
 import $ from '$';
@@ -263,18 +264,13 @@ class HtmlEditor {
 					this.focusTrigger();
 				});
 
-				this.editor.on(
-					'paste',
-					function(evt) {
-						evt.stop();
-						// eslint-disable-next-line prettier/prettier, no-console
-					console.info('paste evt.editor.getData():::',evt.editor.getData())
-
-						// Update the text
-						evt.editor.setData(evt.editor.getData() + ' your additional comments.');
-					},
-					this.editor.element.$
-				);
+				// render all univer
+				this.editor.on('change', (e) => {
+					window.customEventElement.dispatchEvent(
+						// eslint-disable-next-line no-undef
+						new CustomEvent('createUniver', { detail: { ref: e.editor.element.$ } })
+					);
+				});
 
 				if (window.FileReader) {
 					this.editor.on('drop', (event) => {

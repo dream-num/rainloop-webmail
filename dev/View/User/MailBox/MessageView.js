@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+/* eslint-disable no-undef */
 import window from 'window';
 import _ from '_';
 import $ from '$';
@@ -449,6 +451,15 @@ class MessageViewMailBoxUserView extends AbstractViewNext {
 
 			result = isTransparent(result) ? '' : result;
 		}
+
+		// render all univer
+		setTimeout(() => {
+			const ref = document.querySelector('.content-content');
+			window.customEventElement.dispatchEvent(
+				// eslint-disable-next-line no-undef
+				new CustomEvent('createUniver', { detail: { ref } })
+			);
+		}, 1000);
 
 		return result;
 	}

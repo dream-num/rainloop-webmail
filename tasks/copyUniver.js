@@ -13,12 +13,12 @@ const copyFileSync = (source, target) => {
 
 	fs.writeFileSync(targetFile, fs.readFileSync(source));
 };
-copyFileSync('dev/univer.css', config.paths.staticCSS + 'univer.css');
-copyFileSync('dev/collaboration-client.css', config.paths.staticCSS + 'collaboration-client.css');
+copyFileSync('univer/univer.css', config.paths.staticCSS + 'univer.css');
+copyFileSync('univer/collaboration-client.css', config.paths.staticCSS + 'collaboration-client.css');
 
-copyFileSync('dev/collaboration-client.js', config.paths.staticJS + 'collaboration-client.js');
-copyFileSync('dev/collaboration.js', config.paths.staticJS + 'collaboration.js');
-copyFileSync('dev/create-univer.js', config.paths.staticJS + 'create-univer.js');
-copyFileSync('dev/en-US.js', config.paths.staticJS + 'en-US.js');
-copyFileSync('dev/lodash.js', config.paths.staticJS + 'lodash.js');
-copyFileSync('dev/univer.full.umd.js', config.paths.staticJS + 'univer.full.umd.js');
+copyFileSync('univer/collaboration-client.js', config.paths.staticJS + 'collaboration-client.js');
+copyFileSync('univer/collaboration.js', config.paths.staticJS + 'collaboration.js');
+copyFileSync('univer/create-univer.js', config.paths.staticJS + 'create-univer.js');
+copyFileSync('univer/en-US.js', config.paths.staticJS + 'en-US.js');
+copyFileSync('univer/lodash.js', config.paths.staticJS + 'lodash.js');
+copyFileSync('univer/univer.full.umd.js', config.paths.staticJS + 'univer.full.umd.js');

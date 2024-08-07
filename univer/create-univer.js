@@ -4,11 +4,29 @@ const customEventElement = document.createElement('div');
 window.customEventElement = customEventElement;
 
 customEventElement.addEventListener('createUniver', (e) => {
-	// createUniver(e.detail.ref, e.detail.url);
-	createUniverWithCollaboration(e.detail.ref, e.detail.url);
+	if(!e.detail.ref){
+		console.warn('univer container',e.detail.ref);
+		return;
+	}
+	
+	queryAllUniverLink(e.detail.ref, createUniverWithCollaboration)
 });
 
-export function createUniver(container, url) {
+
+function queryAllUniverLink(ele, callback) {
+	ele.querySelectorAll('a').forEach((a)=>{
+		if(isUniverURL(a.href) && a.querySelector('.univer-container') === null){
+			const container = document.createElement('div');
+			container.style.width = '600px';
+			container.style.height = '360px';
+			container.classList.add('univer-container');
+			a.appendChild(container);
+			callback(container, a.href);
+		}
+	})
+}
+
+function createUniver(container, url) {
 	const {
 		UniverCore,
 		UniverDesign,
@@ -173,6 +191,20 @@ function createUniverWithCollaboration(container, url) {
 }
 
 function getUnitByURL(url) {
+	// Define a regular expression to match URLs with univer.ai and univer.plus domain names
+	const regex = /https:\/\/(?:[\w.-]+\.)?univer\.(ai|plus)\/unit\/(\d+)\/([a-zA-Z0-9_-]+)/;
+	const match = url.match(regex);
+
+	if (match) {
+		const type = Number.parseInt(match[2], 10);
+		const id = match[3];
+		return { type, id };
+	}
+
+	return null;
+}
+
+function isUniverURL(url) {
 	// Define a regular expression to match URLs with univer.ai and univer.plus domain names
 	const regex = /https:\/\/(?:[\w.-]+\.)?univer\.(ai|plus)\/unit\/(\d+)\/([a-zA-Z0-9_-]+)/;
 	const match = url.match(regex);
