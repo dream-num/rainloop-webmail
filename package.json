@@ -18,7 +18,7 @@
   "scripts": {
     "watch-css": "gulp watchCss",
     "watch-js": "webpack --color --watch",
-    "build": "gulp all"
+    "build": "gulp all && node ./tasks/copyUniver.js"
   },
   "license": "SEE LICENSE IN LICENSE",
   "licenses": [

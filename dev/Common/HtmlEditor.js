@@ -263,6 +263,19 @@ class HtmlEditor {
 					this.focusTrigger();
 				});
 
+				this.editor.on(
+					'paste',
+					function(evt) {
+						evt.stop();
+						// eslint-disable-next-line prettier/prettier, no-console
+					console.info('paste evt.editor.getData():::',evt.editor.getData())
+
+						// Update the text
+						evt.editor.setData(evt.editor.getData() + ' your additional comments.');
+					},
+					this.editor.element.$
+				);
+
 				if (window.FileReader) {
 					this.editor.on('drop', (event) => {
 						if (0 < event.data.dataTransfer.getFilesCount()) {

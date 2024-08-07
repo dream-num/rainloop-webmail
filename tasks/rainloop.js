@@ -29,9 +29,7 @@ const rainloopSetup = (done) => {
 
 	fs.writeFileSync(
 		dist + 'index.php',
-		fs
-			.readFileSync('index.php', 'utf8')
-			.replace("'APP_VERSION', '0.0.0'", "'APP_VERSION', '" + versionFull + "'")
+		fs.readFileSync('index.php', 'utf8').replace("'APP_VERSION', '0.0.0'", "'APP_VERSION', '" + versionFull + "'")
 	);
 
 	fs.writeFileSync(dist + 'rainloop/v/' + versionFull + '/index.php.root', fs.readFileSync(dist + 'index.php'));
