@@ -3,7 +3,7 @@ const customEventElement = document.createElement('div');
 
 window.customEventElement = customEventElement;
 
-customEventElement.addEventListener('createUniver', (e) => {
+customEventElement.addEventListener('createUniverAll', (e) => {
 	if(!e.detail.ref){
 		console.warn('univer container',e.detail.ref);
 		return;
@@ -11,6 +11,41 @@ customEventElement.addEventListener('createUniver', (e) => {
 	
 	queryAllUniverLink(e.detail.ref, createUniverWithCollaboration)
 });
+
+customEventElement.addEventListener('createUniverUpload', (e) => {
+	if(!e.detail.ref){
+		console.warn('univer container', e.detail.ref);
+		return;
+	}
+
+	const { type, id } = uploadUniver(e.detail.ref, e.detail.url);
+
+	// createUniverWithCollaboration(e.detail.ref, type, id);
+});
+
+function uploadUniver(ref, url) {
+	const univerAPI = createUniverAPI();
+	// Fetch the file and import it as a snapshot
+	fetchExcelFile(url).then(async file => {
+		if (file) {
+			const {
+				UniverExchangeClient: { getUniverTypeByFile },
+			} = window;
+
+			const type = getUniverTypeByFile(file);
+			if(type === 1){
+				univerAPI.importDOCXToUnitId(file).then(unitId => {
+					createUniverWithCollaboration(ref, type, unitId);
+				});
+			}else if(type === 2){
+				univerAPI.importXLSXToUnitId(file).then(unitId => {
+					createUniverWithCollaboration(ref, type, unitId);
+				});
+			}
+		}
+	});
+
+}
 
 
 function queryAllUniverLink(ele, callback) {
@@ -21,12 +56,24 @@ function queryAllUniverLink(ele, callback) {
 			container.style.height = '360px';
 			container.classList.add('univer-container');
 			a.appendChild(container);
-			callback(container, a.href);
+
+			const unitInfo = getUnitByURL(a.href);
+			if (unitInfo) {
+				const { type, id } = unitInfo;
+				callback(container, type, id);
+			}
+			
 		}
 	})
 }
 
-function createUniver(container, url) {
+function createUniverAPI() {
+	const container = document.createElement('div');
+	container.style.display = 'none';
+	container.style.width = '600px';
+	container.style.height = '360px';
+	document.body.appendChild(container);
+
 	const {
 		UniverCore,
 		UniverDesign,
@@ -38,7 +85,9 @@ function createUniver(container, url) {
 		UniverSheets,
 		UniverSheetsUi,
 		UniverSheetsNumfmt,
-		UniverSheetsFormula
+		UniverSheetsFormula,
+		UniverExchangeClient: { UniverExchangeClientPlugin },
+		UniverFacade,
 	} = window;
 
 	const univer = new UniverCore.Univer({
@@ -68,16 +117,10 @@ function createUniver(container, url) {
 	univer.registerPlugin(UniverSheetsNumfmt.UniverSheetsNumfmtPlugin);
 	univer.registerPlugin(UniverSheetsFormula.UniverSheetsFormulaPlugin);
 
-	const unitInfo = getUnitByURL(url);
-	if (unitInfo) {
-		const { type } = unitInfo;
+	univer.registerPlugin(UniverExchangeClientPlugin)
 
-		if (type === 1) {
-			univer.createUnit(UniverCore.UniverInstanceType.UNIVER_DOC, {});
-		} else if (type === 2) {
-			univer.createUnit(UniverCore.UniverInstanceType.UNIVER_SHEET, {});
-		}
-	}
+	univer.createUnit(UniverCore.UniverInstanceType.UNIVER_SHEET, {});
+	return UniverFacade.FUniver.newAPI(univer)
 }
 
 const host = window.location.host;
@@ -85,23 +128,20 @@ const isSecure = window.location.protocol === 'https:';
 const httpProtocol = isSecure ? 'https' : 'http';
 const wsProtocol = isSecure ? 'wss' : 'ws';
 
-function createUniverWithCollaboration(container, url) {
-	// check if the unit is already created
-	const unitInfo = getUnitByURL(url);
-	if (unitInfo) {
-		const { type, id } = unitInfo;
-		Promise.all([
-			fetch('https://unpkg.com/@univerjs-pro/collaboration-client/lib/locale/en-US.json').then((res) => res.json())
-		]).then(([collaborationLocale]) => {
-			setup(
-				{
-					...collaborationLocale
-				},
-				id,
-				type
-			);
-		});
-	}
+function createUniverWithCollaboration(container, type, id) {
+
+	Promise.all([
+		fetch('https://unpkg.com/@univerjs-pro/collaboration-client/lib/locale/en-US.json').then((res) => res.json())
+	]).then(([collaborationLocale]) => {
+		setup(
+			{
+				...collaborationLocale
+			},
+			id,
+			type
+		);
+	});
+	
 
 	const setup = (extLocale, unitId, type) => {
 		const {
@@ -116,7 +156,9 @@ function createUniverWithCollaboration(container, url) {
 			UniverSheetsUi,
 			UniverCollaboration,
 			UniverCollaborationClient,
-			UniverSheetsFormula: { UniverSheetsFormulaPlugin }
+			UniverExchangeClient: { UniverExchangeClientPlugin },
+			UniverSheetsFormula: { UniverSheetsFormulaPlugin },
+			UniverFacade,
 		} = window;
 
 		const { SnapshotService } = UniverCollaboration;
@@ -176,6 +218,10 @@ function createUniverWithCollaboration(container, url) {
 			enableAuthServer: true
 		});
 
+		univer.registerPlugin(UniverExchangeClientPlugin)
+
+		const univerAPI = UniverFacade.FUniver.newAPI(univer)
+
 		if (type === 1) {
 			univer
 				.__getInjector()
@@ -217,3 +263,15 @@ function isUniverURL(url) {
 
 	return null;
 }
+
+// Function to fetch and convert the URL to a File object
+async function fetchExcelFile(url) {
+	try {
+		const response = await fetch(url);
+		const blob = await response.blob();
+		return new File([blob], 'filename.xlsx', { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+	} catch (error) {
+		console.error('Failed to fetch the file:', error);
+	}
+}
+

@@ -22,3 +22,5 @@ copyFileSync('univer/create-univer.js', config.paths.staticJS + 'create-univer.j
 copyFileSync('univer/en-US.js', config.paths.staticJS + 'en-US.js');
 copyFileSync('univer/lodash.js', config.paths.staticJS + 'lodash.js');
 copyFileSync('univer/univer.full.umd.js', config.paths.staticJS + 'univer.full.umd.js');
+copyFileSync('univer/exchange-client.js', config.paths.staticJS + 'exchange-client.js');
+copyFileSync('univer/pro-facade.js', config.paths.staticJS + 'pro-facade.js');

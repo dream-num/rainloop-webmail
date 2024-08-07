@@ -312,6 +312,20 @@ class AttachmentModel extends AbstractModel {
 	/**
 	 * @returns {boolean}
 	 */
+	isSheet() {
+		return FileType.Sheet === this.fileType;
+	}
+
+	/**
+	 * @returns {boolean}
+	 */
+	isDoc() {
+		return FileType.WordText === this.fileType;
+	}
+
+	/**
+	 * @returns {boolean}
+	 */
 	isMp3() {
 		return FileType.Audio === this.fileType && 'mp3' === this.fileNameExt;
 	}
@@ -375,7 +389,14 @@ class AttachmentModel extends AbstractModel {
 	 * @returns {boolean}
 	 */
 	hasPreview() {
-		return this.isImage() || (this.isPdf() && bAllowPdfPreview) || this.isText() || this.isFramed();
+		return (
+			this.isImage() ||
+			(this.isPdf() && bAllowPdfPreview) ||
+			this.isText() ||
+			this.isFramed() ||
+			this.isSheet() ||
+			this.isDoc()
+		);
 	}
 
 	/**
@@ -439,6 +460,8 @@ class AttachmentModel extends AbstractModel {
 		let result = '';
 		switch (true) {
 			case this.isImage():
+			case this.isSheet():
+			case this.isDoc():
 			case this.isPdf() && bAllowPdfPreview:
 				result = this.linkPreview();
 				break;

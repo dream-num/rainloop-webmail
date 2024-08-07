@@ -457,7 +457,7 @@ class MessageViewMailBoxUserView extends AbstractViewNext {
 			const ref = document.querySelector('.content-content');
 			window.customEventElement.dispatchEvent(
 				// eslint-disable-next-line no-undef
-				new CustomEvent('createUniver', { detail: { ref } })
+				new CustomEvent('createUniverAll', { detail: { ref } })
 			);
 		}, 1000);
 
@@ -555,6 +555,77 @@ class MessageViewMailBoxUserView extends AbstractViewNext {
 						return null;
 					})
 				);
+
+			if (0 < dynamicEls.length) {
+				div.on('onBeforeOpen.lg', () => {
+					useKeyboardShortcuts(false);
+					removeInFocus(true);
+				});
+
+				div.on('onCloseAfter.lg', () => {
+					useKeyboardShortcuts(true);
+				});
+
+				div.lightGallery({
+					dynamic: true,
+					loadYoutubeThumbnail: false,
+					loadVimeoThumbnail: false,
+					thumbWidth: 80,
+					thumbContHeight: 95,
+					showThumbByDefault: false,
+					mode: 'lg-lollipop', // 'lg-slide',
+					index: index,
+					dynamicEl: dynamicEls
+				});
+			}
+
+			return false;
+		} else if (
+			attachment &&
+			(attachment.isSheet() || attachment.isDoc()) &&
+			!attachment.isLinked &&
+			this.message() &&
+			this.message().attachments()
+		) {
+			let index = 0,
+				listIndex = 0;
+
+			const links = [];
+			const div = $('<div>'),
+				dynamicEls = _.compact(
+					_.map(this.message().attachments(), (item) => {
+						if (item && !item.isLinked && (item.isSheet() || item.isDoc())) {
+							if (item === attachment) {
+								index = listIndex;
+							}
+
+							listIndex += 1;
+							links.push(location.origin + location.pathname + item.linkPreview().substr(2));
+
+							return {
+								src: item.linkPreview(),
+								thumb: item.linkThumbnail(),
+								subHtml: item.fileName,
+								downloadUrl: item.linkPreview()
+							};
+						}
+
+						return null;
+					})
+				);
+
+			setTimeout(() => {
+				document.querySelectorAll('.lg-img-wrap img').forEach((img) => {
+					if (links.includes(img.src)) {
+						replaceImageWithDiv(img, (container) => {
+							window.customEventElement.dispatchEvent(
+								// eslint-disable-next-line no-undef
+								new CustomEvent('createUniverUpload', { detail: { ref: container, url: img.src } })
+							);
+						});
+					}
+				});
+			}, 1000);
 
 			if (0 < dynamicEls.length) {
 				div.on('onBeforeOpen.lg', () => {
@@ -1083,5 +1154,29 @@ class MessageViewMailBoxUserView extends AbstractViewNext {
 		this.checkHeaderHeight();
 	}
 }
+
+function replaceImageWithDiv(img, callback) {
+	// 创建一个新的 div 元素
+	const div = document.createElement('div');
+	div.classList.add('univer-container');
+
+	// 设置 div 的宽度和高度
+	div.style.width = '900px';
+	div.style.height = '600px';
+
+	// 设置 div 的背景颜色为浅灰色（可选）
+	div.style.backgroundColor = '#e0e0e0';
+
+	// 设置 div 的文本内容（可选）
+	div.innerText = 'This was an image';
+
+	// 在 img 元素的父元素中替换 img 元素
+	img.parentNode.replaceChild(div, img);
+
+	callback && callback(div);
+}
+
+// 调用函数替换图片
+replaceImageWithDiv();
 
 export { MessageViewMailBoxUserView, MessageViewMailBoxUserView as default };
