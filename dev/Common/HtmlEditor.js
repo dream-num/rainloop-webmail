@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import window from 'window';
 import _ from '_';
 import $ from '$';
@@ -261,6 +262,14 @@ class HtmlEditor {
 
 				this.editor.on('focus', () => {
 					this.focusTrigger();
+				});
+
+				// render all univer
+				this.editor.on('change', (e) => {
+					window.customEventElement.dispatchEvent(
+						// eslint-disable-next-line no-undef
+						new CustomEvent('createUniver', { detail: { ref: e.editor.element.$ } })
+					);
 				});
 
 				if (window.FileReader) {

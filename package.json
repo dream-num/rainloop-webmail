@@ -16,9 +16,10 @@
     "url": "git://github.com/RainLoop/rainloop-webmail.git"
   },
   "scripts": {
-    "watch-css": "gulp watchCss",
-    "watch-js": "webpack --color --watch",
-    "build": "gulp all"
+    "watch-css": "cross-env NODE_OPTIONS=--openssl-legacy-provider gulp watchCss",
+    "watch-js": "cross-env NODE_OPTIONS=--openssl-legacy-provider webpack --color --watch",
+    "build": "cross-env NODE_OPTIONS=--openssl-legacy-provider gulp all",
+    "demo": "npm run build && node ./tasks/copyUniver.js && node ./tasks/copyDir.js"
   },
   "license": "SEE LICENSE IN LICENSE",
   "licenses": [
@@ -56,6 +57,7 @@
     "classnames": "2.3.1",
     "copy-webpack-plugin": "5.1.1",
     "core-js": "3.12.0",
+    "cross-env": "^7.0.3",
     "css-loader": "3.4.2",
     "element-dataset": "2.2.6",
     "emailjs-addressparser": "2.0.2",
