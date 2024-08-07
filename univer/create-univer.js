@@ -18,9 +18,7 @@ customEventElement.addEventListener('createUniverUpload', (e) => {
 		return;
 	}
 
-	const { type, id } = uploadUniver(e.detail.ref, e.detail.url);
-
-	// createUniverWithCollaboration(e.detail.ref, type, id);
+	uploadUniver(e.detail.ref, e.detail.url);
 });
 
 function uploadUniver(ref, url) {

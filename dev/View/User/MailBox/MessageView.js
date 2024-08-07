@@ -1176,7 +1176,4 @@ function replaceImageWithDiv(img, callback) {
 	callback && callback(div);
 }
 
-// 调用函数替换图片
-replaceImageWithDiv();
-
 export { MessageViewMailBoxUserView, MessageViewMailBoxUserView as default };
