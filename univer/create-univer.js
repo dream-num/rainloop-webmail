@@ -3,7 +3,7 @@ const customEventElement = document.createElement('div');
 
 window.customEventElement = customEventElement;
 
-customEventElement.addEventListener('createUniver', (e) => {
+customEventElement.addEventListener('createUniverAll', (e) => {
 	if(!e.detail.ref){
 		console.warn('univer container',e.detail.ref);
 		return;
@@ -12,6 +12,49 @@ customEventElement.addEventListener('createUniver', (e) => {
 	queryAllUniverLink(e.detail.ref, createUniverWithCollaboration)
 });
 
+customEventElement.addEventListener('createUniverUpload', (e) => {
+	if(!e.detail.ref){
+		console.warn('univer container', e.detail.ref);
+		return;
+	}
+
+	if(e.detail.ref === 'dialog'){
+		showDialog();
+		const container = document.querySelector('#file-preview-overlay .dialog-univer-container');
+		handleFile(container, e.detail.url);
+		// createUniver(container); // offline test
+	}else{
+		uploadUniver(e.detail.ref, e.detail.url);
+	}
+	// createUniver(e.detail.ref); // offline test
+});
+
+
+initDialogDOM();
+
+
+function uploadUniver(ref, url) {
+	// Fetch the file and import it as a snapshot
+	getFileByURL(url).then(async file => {
+		if (file) {
+			handleFile(ref, file);
+		}
+	});
+	
+}
+
+function handleFile(ref,file){
+	const {
+		UniverExchangeClient: { getUniverTypeByFile },
+	} = window;
+
+	const type = getUniverTypeByFile(file);
+
+	const exchangeService = createUniver();
+	exchangeService.importFileToUnitId(file, type).then(unitId => {
+		createUniverWithCollaboration(ref, type, unitId);
+	})
+}
 
 function queryAllUniverLink(ele, callback) {
 	ele.querySelectorAll('a').forEach((a)=>{
@@ -21,12 +64,26 @@ function queryAllUniverLink(ele, callback) {
 			container.style.height = '360px';
 			container.classList.add('univer-container');
 			a.appendChild(container);
-			callback(container, a.href);
+
+			const unitInfo = getUnitByURL(a.href);
+			if (unitInfo) {
+				const { type, id } = unitInfo;
+				callback(container, type, id);
+			}
+			
 		}
 	})
 }
 
-function createUniver(container, url) {
+function createUniver(container) {
+	if(!container){
+		container = document.createElement('div');
+		container.style.display = 'none';
+		container.style.width = '600px';
+		container.style.height = '360px';
+		document.body.appendChild(container);
+	}
+
 	const {
 		UniverCore,
 		UniverDesign,
@@ -38,7 +95,9 @@ function createUniver(container, url) {
 		UniverSheets,
 		UniverSheetsUi,
 		UniverSheetsNumfmt,
-		UniverSheetsFormula
+		UniverSheetsFormula,
+		UniverExchangeClient: { UniverExchangeClientPlugin, IExchangeService },
+		// UniverFacade,
 	} = window;
 
 	const univer = new UniverCore.Univer({
@@ -68,16 +127,10 @@ function createUniver(container, url) {
 	univer.registerPlugin(UniverSheetsNumfmt.UniverSheetsNumfmtPlugin);
 	univer.registerPlugin(UniverSheetsFormula.UniverSheetsFormulaPlugin);
 
-	const unitInfo = getUnitByURL(url);
-	if (unitInfo) {
-		const { type } = unitInfo;
+	univer.registerPlugin(UniverExchangeClientPlugin)
 
-		if (type === 1) {
-			univer.createUnit(UniverCore.UniverInstanceType.UNIVER_DOC, {});
-		} else if (type === 2) {
-			univer.createUnit(UniverCore.UniverInstanceType.UNIVER_SHEET, {});
-		}
-	}
+	univer.createUnit(UniverCore.UniverInstanceType.UNIVER_SHEET, {});
+	return univer.__getInjector().get(IExchangeService);
 }
 
 const host = window.location.host;
@@ -85,23 +138,20 @@ const isSecure = window.location.protocol === 'https:';
 const httpProtocol = isSecure ? 'https' : 'http';
 const wsProtocol = isSecure ? 'wss' : 'ws';
 
-function createUniverWithCollaboration(container, url) {
-	// check if the unit is already created
-	const unitInfo = getUnitByURL(url);
-	if (unitInfo) {
-		const { type, id } = unitInfo;
-		Promise.all([
-			fetch('https://unpkg.com/@univerjs-pro/collaboration-client/lib/locale/en-US.json').then((res) => res.json())
-		]).then(([collaborationLocale]) => {
-			setup(
-				{
-					...collaborationLocale
-				},
-				id,
-				type
-			);
-		});
-	}
+function createUniverWithCollaboration(container, type, id) {
+
+	Promise.all([
+		fetch('https://unpkg.com/@univerjs-pro/collaboration-client/lib/locale/en-US.json').then((res) => res.json())
+	]).then(([collaborationLocale]) => {
+		setup(
+			{
+				...collaborationLocale
+			},
+			id,
+			type
+		);
+	});
+	
 
 	const setup = (extLocale, unitId, type) => {
 		const {
@@ -116,7 +166,8 @@ function createUniverWithCollaboration(container, url) {
 			UniverSheetsUi,
 			UniverCollaboration,
 			UniverCollaborationClient,
-			UniverSheetsFormula: { UniverSheetsFormulaPlugin }
+			UniverExchangeClient: { UniverExchangeClientPlugin },
+			UniverSheetsFormula: { UniverSheetsFormulaPlugin },
 		} = window;
 
 		const { SnapshotService } = UniverCollaboration;
@@ -176,6 +227,8 @@ function createUniverWithCollaboration(container, url) {
 			enableAuthServer: true
 		});
 
+		univer.registerPlugin(UniverExchangeClientPlugin)
+
 		if (type === 1) {
 			univer
 				.__getInjector()
@@ -216,4 +269,122 @@ function isUniverURL(url) {
 	}
 
 	return null;
+}
+
+async function getFileByURL(url) {
+    try {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        const data = await response.blob();
+        const contentType = response.headers.get('Content-Type') || 'application/octet-stream';
+        const filename = getFileNameFromURL(url) || 'file';
+        const file = new File([data], filename, { type: contentType });
+        return file;
+    } catch (error) {
+        console.error('Error fetching file from URL:', error);
+        return undefined;
+    }
+}
+
+function getFileNameFromURL(url) {
+    const urlObj = new URL(url);
+    const pathSegments = urlObj.pathname.split('/');
+    return pathSegments.pop();
+}
+
+function initDialogDOM(params) {
+    if(!window.initDialog){
+
+        window.initDialog = true
+
+        let styles = `
+        #file-preview-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+			z-index: 9999;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+        #dialog {
+            background: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            position: relative;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 95%;
+    		height: 90%;
+            text-align: center;
+        }
+        #dialog h2 {
+            margin-top: 0;
+        }
+		.dialog-univer-container{
+			height: calc(100% - 120px);
+			border: 1px solid rgba(var(--grey-300));
+    		border-radius: 8px;
+    		padding: 4px 0 4px 0;
+		}
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .confirm-btn {
+            margin-top: 20px;
+            padding: 8px 20px;
+        }
+            `
+
+		 let styleSheet = document.createElement("style")
+		 styleSheet.innerText = styles
+		 document.head.appendChild(styleSheet)
+
+         const dialog = `<div id="file-preview-overlay">
+			<div id="dialog">
+				<button class="close-btn">✖</button>
+				<h2>Univer Preview</h2>
+				<div class="dialog-univer-container"></div>
+				<button class="confirm-btn btn btn-large btn-success">OK</button>
+			</div>
+		</div>`
+
+        document.body.insertAdjacentHTML('beforeend',dialog)
+
+        initDialogEvent()
+            
+    }
+}
+
+function initDialogEvent() {
+    const closeBtn = document.querySelector("#file-preview-overlay .close-btn");
+    const confirmBtn = document.querySelector("#file-preview-overlay .confirm-btn");
+  
+    closeBtn.addEventListener("click", () => {
+		hideDialog()
+    });
+  
+    confirmBtn.addEventListener("click", () => {
+		hideDialog()
+    });
+  }
+
+function showDialog(){
+	const overlay = document.querySelector("#file-preview-overlay");
+	overlay.style.display = "flex";
+}
+
+function hideDialog(){
+	const overlay = document.querySelector("#file-preview-overlay");
+	overlay.style.display = "none";
 }

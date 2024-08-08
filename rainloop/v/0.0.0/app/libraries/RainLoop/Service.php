@@ -310,6 +310,7 @@ class Service
 			'{{UinverLodashJsLink}}' => $this->staticPath('js/lodash.js'),
 			'{{UinverCollaborationJsLink}}' => $this->staticPath('js/collaboration.js'),
 			'{{UinverCollaborationClientJsLink}}' => $this->staticPath('js/collaboration-client.js'),
+			'{{UinverExchangeClientJsLink}}' => $this->staticPath('js/exchange-client.js'),
 			'{{UinverCreateJsLink}}' => $this->staticPath('js/create-univer.js'),
 			'{{BaseViewport}}' => $bMobile ? 'width=device-width,initial-scale=1,user-scalable=no' : 'width=950,maximum-scale=2',
 			'{{BaseContentSecurityPolicy}}' => $sContentSecurityPolicy ?

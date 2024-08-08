@@ -268,7 +268,7 @@ class HtmlEditor {
 				this.editor.on('change', (e) => {
 					window.customEventElement.dispatchEvent(
 						// eslint-disable-next-line no-undef
-						new CustomEvent('createUniver', { detail: { ref: e.editor.element.$ } })
+						new CustomEvent('createUniverAll', { detail: { ref: e.editor.element.$ } })
 					);
 				});
 

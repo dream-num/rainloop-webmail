@@ -28,7 +28,6 @@ function copyFilesRecursively(source, target) {
 		} else {
 			// 如果是文件，直接复制，遇到同名文件覆盖
 			fs.copyFileSync(sourceFilePath, targetFilePath);
-			console.log(`Copied file from ${sourceFilePath} to ${targetFilePath}`);
 		}
 	});
 }
@@ -39,4 +38,6 @@ ensureDirExistence(targetDir);
 // 开始复制文件
 copyFilesRecursively(sourceDir, targetDir);
 
-console.log('All files copied successfully!');
+// ANSI 转义码，用于绿色文本
+const greenText = '\x1b[32m%s\x1b[0m';
+console.log(greenText, 'All Rainloop files copied successfully!');
