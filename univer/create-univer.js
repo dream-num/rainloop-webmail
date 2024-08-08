@@ -165,7 +165,7 @@ function createUniverWithCollaboration(container, type, id) {
 			UniverSheets,
 			UniverSheetsUi,
 			UniverCollaboration,
-			UniverCollaborationClient,
+			UniverCollaborationClient: {ANONYMOUS_LOGIN_URL},
 			UniverExchangeClient: { UniverExchangeClientPlugin },
 			UniverSheetsFormula: { UniverSheetsFormulaPlugin },
 		} = window;
@@ -216,13 +216,11 @@ function createUniverWithCollaboration(container, type, id) {
 		} = UniverCollaborationClient;
 
 		// config collaboration endpoint
+		configService.setConfig(ANONYMOUS_LOGIN_URL, `${httpProtocol}://${host}/universer-api/anonymous`);
 		configService.setConfig(AUTHZ_URL_KEY, `${httpProtocol}://${host}/universer-api/authz`);
 		configService.setConfig(SNAPSHOT_SERVER_URL_KEY, `${httpProtocol}://${host}/universer-api/snapshot`);
 		configService.setConfig(COLLAB_SUBMIT_CHANGESET_URL_KEY, `${httpProtocol}://${host}/universer-api/comb`);
 		configService.setConfig(COLLAB_WEB_SOCKET_URL_KEY, `${wsProtocol}://${host}/universer-api/comb/connect`);
-
-		
-		
 
 		// collaboration
 		univer.registerPlugin(UniverCollaboration.UniverCollaborationPlugin);
@@ -233,20 +231,32 @@ function createUniverWithCollaboration(container, type, id) {
 		univer.registerPlugin(UniverExchangeClientPlugin)
 
 		// Define the URL
-		const url = `${httpProtocol}://${host}/universer-api/anonymous`;
-		anonymousLogin(url, () => {
-			if (type === 1) {
-				univer
-					.__getInjector()
-					.get(SnapshotService)
-					.loadDoc(unitId, 0);
-			} else if (type === 2) {
-				univer
-					.__getInjector()
-					.get(SnapshotService)
-					.loadSheet(unitId, 0);
-			}
-		});
+		// const url = `${httpProtocol}://${host}/universer-api/anonymous`;
+		// anonymousLogin(url, () => {
+		// 	if (type === 1) {
+		// 		univer
+		// 			.__getInjector()
+		// 			.get(SnapshotService)
+		// 			.loadDoc(unitId, 0);
+		// 	} else if (type === 2) {
+		// 		univer
+		// 			.__getInjector()
+		// 			.get(SnapshotService)
+		// 			.loadSheet(unitId, 0);
+		// 	}
+		// });
+
+		if (type === 1) {
+			univer
+				.__getInjector()
+				.get(SnapshotService)
+				.loadDoc(unitId, 0);
+		} else if (type === 2) {
+			univer
+				.__getInjector()
+				.get(SnapshotService)
+				.loadSheet(unitId, 0);
+		}
 		
 	};
 }
