@@ -18,33 +18,43 @@ customEventElement.addEventListener('createUniverUpload', (e) => {
 		return;
 	}
 
-	uploadUniver(e.detail.ref, e.detail.url);
+	if(e.detail.ref === 'dialog'){
+		showDialog();
+		const container = document.querySelector('#file-preview-overlay .dialog-univer-container');
+		handleFile(container, e.detail.url);
+		// createUniver(container); // offline test
+	}else{
+		uploadUniver(e.detail.ref, e.detail.url);
+	}
+	// createUniver(e.detail.ref); // offline test
 });
 
-function uploadUniver(ref, url) {
-	const univerAPI = createUniverAPI();
-	// Fetch the file and import it as a snapshot
-	fetchExcelFile(url).then(async file => {
-		if (file) {
-			const {
-				UniverExchangeClient: { getUniverTypeByFile },
-			} = window;
 
-			const type = getUniverTypeByFile(file);
-			if(type === 1){
-				univerAPI.importDOCXToUnitId(file).then(unitId => {
-					createUniverWithCollaboration(ref, type, unitId);
-				});
-			}else if(type === 2){
-				univerAPI.importXLSXToUnitId(file).then(unitId => {
-					createUniverWithCollaboration(ref, type, unitId);
-				});
-			}
+initDialogDOM();
+
+
+function uploadUniver(ref, url) {
+	// Fetch the file and import it as a snapshot
+	getFileByURL(url).then(async file => {
+		if (file) {
+			handleFile(ref, file);
 		}
 	});
-
+	
 }
 
+function handleFile(ref,file){
+	const {
+		UniverExchangeClient: { getUniverTypeByFile },
+	} = window;
+
+	const type = getUniverTypeByFile(file);
+
+	const exchangeService = createUniver();
+	exchangeService.importFileToUnitId(file, type).then(unitId => {
+		createUniverWithCollaboration(ref, type, unitId);
+	})
+}
 
 function queryAllUniverLink(ele, callback) {
 	ele.querySelectorAll('a').forEach((a)=>{
@@ -65,12 +75,14 @@ function queryAllUniverLink(ele, callback) {
 	})
 }
 
-function createUniverAPI() {
-	const container = document.createElement('div');
-	container.style.display = 'none';
-	container.style.width = '600px';
-	container.style.height = '360px';
-	document.body.appendChild(container);
+function createUniver(container) {
+	if(!container){
+		container = document.createElement('div');
+		container.style.display = 'none';
+		container.style.width = '600px';
+		container.style.height = '360px';
+		document.body.appendChild(container);
+	}
 
 	const {
 		UniverCore,
@@ -84,8 +96,8 @@ function createUniverAPI() {
 		UniverSheetsUi,
 		UniverSheetsNumfmt,
 		UniverSheetsFormula,
-		UniverExchangeClient: { UniverExchangeClientPlugin },
-		UniverFacade,
+		UniverExchangeClient: { UniverExchangeClientPlugin, IExchangeService },
+		// UniverFacade,
 	} = window;
 
 	const univer = new UniverCore.Univer({
@@ -118,7 +130,7 @@ function createUniverAPI() {
 	univer.registerPlugin(UniverExchangeClientPlugin)
 
 	univer.createUnit(UniverCore.UniverInstanceType.UNIVER_SHEET, {});
-	return UniverFacade.FUniver.newAPI(univer)
+	return univer.__getInjector().get(IExchangeService);
 }
 
 const host = window.location.host;
@@ -156,7 +168,6 @@ function createUniverWithCollaboration(container, type, id) {
 			UniverCollaborationClient,
 			UniverExchangeClient: { UniverExchangeClientPlugin },
 			UniverSheetsFormula: { UniverSheetsFormulaPlugin },
-			UniverFacade,
 		} = window;
 
 		const { SnapshotService } = UniverCollaboration;
@@ -218,8 +229,6 @@ function createUniverWithCollaboration(container, type, id) {
 
 		univer.registerPlugin(UniverExchangeClientPlugin)
 
-		const univerAPI = UniverFacade.FUniver.newAPI(univer)
-
 		if (type === 1) {
 			univer
 				.__getInjector()
@@ -262,14 +271,120 @@ function isUniverURL(url) {
 	return null;
 }
 
-// Function to fetch and convert the URL to a File object
-async function fetchExcelFile(url) {
-	try {
-		const response = await fetch(url);
-		const blob = await response.blob();
-		return new File([blob], 'filename.xlsx', { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-	} catch (error) {
-		console.error('Failed to fetch the file:', error);
-	}
+async function getFileByURL(url) {
+    try {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        const data = await response.blob();
+        const contentType = response.headers.get('Content-Type') || 'application/octet-stream';
+        const filename = getFileNameFromURL(url) || 'file';
+        const file = new File([data], filename, { type: contentType });
+        return file;
+    } catch (error) {
+        console.error('Error fetching file from URL:', error);
+        return undefined;
+    }
 }
 
+function getFileNameFromURL(url) {
+    const urlObj = new URL(url);
+    const pathSegments = urlObj.pathname.split('/');
+    return pathSegments.pop();
+}
+
+function initDialogDOM(params) {
+    if(!window.initDialog){
+
+        window.initDialog = true
+
+        let styles = `
+        #file-preview-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+			z-index: 9999;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+        #dialog {
+            background: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            position: relative;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 95%;
+    		height: 90%;
+            text-align: center;
+        }
+        #dialog h2 {
+            margin-top: 0;
+        }
+		.dialog-univer-container{
+			height: calc(100% - 120px);
+			border: 1px solid rgba(var(--grey-300));
+    		border-radius: 8px;
+    		padding: 4px 0 4px 0;
+		}
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .confirm-btn {
+            margin-top: 20px;
+            padding: 8px 20px;
+        }
+            `
+
+		 let styleSheet = document.createElement("style")
+		 styleSheet.innerText = styles
+		 document.head.appendChild(styleSheet)
+
+         const dialog = `<div id="file-preview-overlay">
+			<div id="dialog">
+				<button class="close-btn">✖</button>
+				<h2>Univer Preview</h2>
+				<div class="dialog-univer-container"></div>
+				<button class="confirm-btn btn btn-large btn-success">OK</button>
+			</div>
+		</div>`
+
+        document.body.insertAdjacentHTML('beforeend',dialog)
+
+        initDialogEvent()
+            
+    }
+}
+
+function initDialogEvent() {
+    const closeBtn = document.querySelector("#file-preview-overlay .close-btn");
+    const confirmBtn = document.querySelector("#file-preview-overlay .confirm-btn");
+  
+    closeBtn.addEventListener("click", () => {
+		hideDialog()
+    });
+  
+    confirmBtn.addEventListener("click", () => {
+		hideDialog()
+    });
+  }
+
+function showDialog(){
+	const overlay = document.querySelector("#file-preview-overlay");
+	overlay.style.display = "flex";
+}
+
+function hideDialog(){
+	const overlay = document.querySelector("#file-preview-overlay");
+	overlay.style.display = "none";
+}

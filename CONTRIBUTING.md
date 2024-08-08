@@ -27,19 +27,34 @@ mkdir /var/www/html/rainloop
 unzip rainloop-latest.zip -d /var/www/html/rainloop
 
 cd /var/www/html/rainloop
-find . -type d -exec chmod 755 {} \;
-find . -type f -exec chmod 644 {} \;
-chown -R www-data:www-data .
+sudo find . -type d -exec chmod 755 {} \;
+sudo find . -type f -exec chmod 644 {} \;
+sudo chown -R www-data:www-data .
+```
+
+If you need copy from `rainloop-webmail` manually
+```shell
+sudo rm -rf /var/www/html/rainloop/rainloop/v/1.17.0/*
+sudo cp ./rainloop-webmail/rainloop/v/0.0.0/* -r /var/www/html/rainloop/rainloop/v/1.17.0/
 ```
 
 ### Start server
 
+
 ```shell
-sudo /etc/init.d/apache2 start
+sudo systemctl start apache2
 ```
 check status
 ```shell
-sudo /etc/init.d/apache2 status
+sudo systemctl status apache2
+```
+clear cache
+```shell
+sudo rm -rf /var/www/html/rainloop/data/_data_/_default_/cache/*
+```
+restart server
+```shell
+sudo systemctl restart apache2
 ```
 
 

@@ -958,6 +958,7 @@
 			;
 
 			self.bEnableDnD = true;
+			self.file = null;
 
 			self.oEvents = {
 				'onDialog': null,
@@ -1306,6 +1307,7 @@
 		 */
 		Jua.prototype.addNewFile = function (oFileInfo)
 		{
+			this.file = oFileInfo['File'];
 			this.addFile(Utils.getNewUid(), oFileInfo);
 		};
 

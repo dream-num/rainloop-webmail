@@ -18,8 +18,8 @@
   "scripts": {
     "watch-css": "cross-env NODE_OPTIONS=--openssl-legacy-provider gulp watchCss",
     "watch-js": "cross-env NODE_OPTIONS=--openssl-legacy-provider webpack --color --watch",
-    "build": "cross-env NODE_OPTIONS=--openssl-legacy-provider gulp all",
-    "demo": "npm run build && node ./tasks/copyUniver.js && node ./tasks/copyDir.js"
+    "build": "cross-env NODE_OPTIONS=--openssl-legacy-provider gulp all && node ./tasks/copyUniver.js",
+    "demo": "npm run build && node ./tasks/copyDir.js"
   },
   "license": "SEE LICENSE IN LICENSE",
   "licenses": [

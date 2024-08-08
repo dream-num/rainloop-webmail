@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import window from 'window';
 import _ from '_';
 import $ from '$';
@@ -1459,6 +1460,19 @@ class ComposePopupView extends AbstractViewNext {
 		};
 	}
 
+	filePreviewAttachmentHelper(id, oJua) {
+		return () => {
+			const attachment = _.find(this.attachments(), (item) => item && item.id === id);
+			if (attachment) {
+				const file = oJua.file;
+				window.customEventElement.dispatchEvent(
+					// eslint-disable-next-line no-undef
+					new CustomEvent('createUniverUpload', { detail: { ref: 'dialog', url: file } })
+				);
+			}
+		};
+	}
+
 	initUploader() {
 		if (this.composeUploaderButton()) {
 			const uploadCache = {},
@@ -1511,6 +1525,7 @@ class ComposePopupView extends AbstractViewNext {
 							attachment = new ComposeAttachmentModel(sId, fileName, size);
 
 						attachment.cancel = this.cancelAttachmentHelper(sId, oJua);
+						attachment.filePreview = this.filePreviewAttachmentHelper(sId, oJua);
 
 						this.attachments.push(attachment);
 
@@ -1611,6 +1626,7 @@ class ComposePopupView extends AbstractViewNext {
 
 			attachment.fromMessage = true;
 			attachment.cancel = this.cancelAttachmentHelper(message.requestHash);
+			attachment.filePreview = this.filePreviewAttachmentHelper(message.requestHash);
 			attachment
 				.waiting(false)
 				.uploading(true)
@@ -1631,6 +1647,7 @@ class ComposePopupView extends AbstractViewNext {
 
 		attachment.fromMessage = false;
 		attachment.cancel = this.cancelAttachmentHelper(url);
+		attachment.filePreview = this.filePreviewAttachmentHelper(url);
 		attachment
 			.waiting(false)
 			.uploading(true)
@@ -1759,6 +1776,7 @@ class ComposePopupView extends AbstractViewNext {
 
 						attachment.fromMessage = true;
 						attachment.cancel = this.cancelAttachmentHelper(item.download);
+						attachment.filePreview = this.filePreviewAttachmentHelper(item.download);
 						attachment
 							.waiting(false)
 							.uploading(true)

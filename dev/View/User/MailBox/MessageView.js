@@ -615,6 +615,8 @@ class MessageViewMailBoxUserView extends AbstractViewNext {
 				);
 
 			setTimeout(() => {
+				setParentStyle();
+
 				document.querySelectorAll('.lg-img-wrap img').forEach((img) => {
 					if (links.includes(img.src)) {
 						replaceImageWithDiv(img, (container) => {
@@ -1161,11 +1163,8 @@ function replaceImageWithDiv(img, callback) {
 	div.classList.add('univer-container');
 
 	// 设置 div 的宽度和高度
-	div.style.width = '900px';
-	div.style.height = '600px';
-
-	// 设置 div 的背景颜色为浅灰色（可选）
-	div.style.backgroundColor = '#e0e0e0';
+	div.style.width = '90%';
+	div.style.height = '90%';
 
 	// 设置 div 的文本内容（可选）
 	div.innerText = 'This was an image';
@@ -1173,7 +1172,21 @@ function replaceImageWithDiv(img, callback) {
 	// 在 img 元素的父元素中替换 img 元素
 	img.parentNode.replaceChild(div, img);
 
+	// Prevent directly triggering the photo gallery page turn
+	div.addEventListener('wheel', function(event) {
+		event.stopPropagation();
+	});
+
 	callback && callback(div);
+}
+
+function setParentStyle() {
+	// set class lg-img-wrap display flex ,center
+	document.querySelectorAll('.lg-img-wrap').forEach((el) => {
+		el.style.display = 'flex';
+		el.style.justifyContent = 'center';
+		el.style.alignItems = 'center';
+	});
 }
 
 export { MessageViewMailBoxUserView, MessageViewMailBoxUserView as default };

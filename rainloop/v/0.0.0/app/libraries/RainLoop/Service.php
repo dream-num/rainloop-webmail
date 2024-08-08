@@ -311,7 +311,6 @@ class Service
 			'{{UinverCollaborationJsLink}}' => $this->staticPath('js/collaboration.js'),
 			'{{UinverCollaborationClientJsLink}}' => $this->staticPath('js/collaboration-client.js'),
 			'{{UinverExchangeClientJsLink}}' => $this->staticPath('js/exchange-client.js'),
-			'{{UinverProFacadeJsLink}}' => $this->staticPath('js/pro-facade.js'),
 			'{{UinverCreateJsLink}}' => $this->staticPath('js/create-univer.js'),
 			'{{BaseViewport}}' => $bMobile ? 'width=device-width,initial-scale=1,user-scalable=no' : 'width=950,maximum-scale=2',
 			'{{BaseContentSecurityPolicy}}' => $sContentSecurityPolicy ?

@@ -1,6 +1,6 @@
 <li class="attachmentItem clearfix" data-bind="attr: { 'title': title }, css: { 'waiting': waiting, 'error': '' !== error() }">
 	<div class="attachmentIconParent pull-left">
-		<div class="iconMain">
+		<div class="iconMain" data-bind="click: filePreview">
 			<i class="attachmentIcon attachmentMainIcon" data-bind="css: iconClass(), visible: !uploading() || 0 === progress()"></i>
 			<i class="attachmentIconText attachmentMainIconText" data-bind="text: iconText(), visible: !uploading() || 0 === progress()"></i>
 		</div>
