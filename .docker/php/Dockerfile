@@ -1,6 +1,6 @@
 # FROM php:7.3-fpm
 # FROM php:7.4-fpm
-FROM php:8.0-fpm
+FROM univer-acr-registry.cn-shenzhen.cr.aliyuncs.com/release/php:8.0-fpm
 
 RUN apt-get update
 
