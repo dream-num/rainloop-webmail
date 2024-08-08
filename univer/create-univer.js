@@ -133,7 +133,7 @@ function createUniver(container) {
 	return univer.__getInjector().get(IExchangeService);
 }
 
-const host = 'staging.univer.plus' ||  window.location.host;
+const host = window.location.host || 'staging.univer.plus';
 const isSecure = window.location.protocol === 'https:';
 const httpProtocol = isSecure ? 'https' : 'http';
 const wsProtocol = isSecure ? 'wss' : 'ws';
