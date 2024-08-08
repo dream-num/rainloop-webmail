@@ -222,9 +222,7 @@ function createUniverWithCollaboration(container, type, id) {
 		configService.setConfig(COLLAB_WEB_SOCKET_URL_KEY, `${wsProtocol}://${host}/universer-api/comb/connect`);
 
 		
-		// Define the URL
-		const url = `${httpProtocol}://${host}/universer-api/anonymous`;
-		anonymousLogin(url);
+		
 
 		// collaboration
 		univer.registerPlugin(UniverCollaboration.UniverCollaborationPlugin);
@@ -234,17 +232,22 @@ function createUniverWithCollaboration(container, type, id) {
 
 		univer.registerPlugin(UniverExchangeClientPlugin)
 
-		if (type === 1) {
-			univer
-				.__getInjector()
-				.get(SnapshotService)
-				.loadDoc(unitId, 0);
-		} else if (type === 2) {
-			univer
-				.__getInjector()
-				.get(SnapshotService)
-				.loadSheet(unitId, 0);
-		}
+		// Define the URL
+		const url = `${httpProtocol}://${host}/universer-api/anonymous`;
+		anonymousLogin(url, () => {
+			if (type === 1) {
+				univer
+					.__getInjector()
+					.get(SnapshotService)
+					.loadDoc(unitId, 0);
+			} else if (type === 2) {
+				univer
+					.__getInjector()
+					.get(SnapshotService)
+					.loadSheet(unitId, 0);
+			}
+		});
+		
 	};
 }
 
@@ -435,7 +438,7 @@ function createFingerprint() {
 
 
 
-function anonymousLogin(url){
+function anonymousLogin(url,callback){
 
 // Define the request parameters
 const params = {
@@ -458,6 +461,7 @@ fetch(url, {
 })
 .then(data => {
   console.log('Success:', data); // Log the response data
+  callback()
 })
 .catch(error => {
   console.error('Error:', error); // Log any errors
