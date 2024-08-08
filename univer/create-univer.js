@@ -133,7 +133,7 @@ function createUniver(container) {
 	return univer.__getInjector().get(IExchangeService);
 }
 
-const host = window.location.host;
+const host = 'staging.univer.plus' ||  window.location.host;
 const isSecure = window.location.protocol === 'https:';
 const httpProtocol = isSecure ? 'https' : 'http';
 const wsProtocol = isSecure ? 'wss' : 'ws';
@@ -220,6 +220,11 @@ function createUniverWithCollaboration(container, type, id) {
 		configService.setConfig(SNAPSHOT_SERVER_URL_KEY, `${httpProtocol}://${host}/universer-api/snapshot`);
 		configService.setConfig(COLLAB_SUBMIT_CHANGESET_URL_KEY, `${httpProtocol}://${host}/universer-api/comb`);
 		configService.setConfig(COLLAB_WEB_SOCKET_URL_KEY, `${wsProtocol}://${host}/universer-api/comb/connect`);
+
+		
+		// Define the URL
+		const url = `${httpProtocol}://${host}/universer-api/anonymous`;
+		anonymousLogin(url);
 
 		// collaboration
 		univer.registerPlugin(UniverCollaboration.UniverCollaborationPlugin);
@@ -387,4 +392,75 @@ function showDialog(){
 function hideDialog(){
 	const overlay = document.querySelector("#file-preview-overlay");
 	overlay.style.display = "none";
+}
+
+
+function createFingerprint() {
+    if (!typeof window) {
+        return '';
+    }
+
+    function bin2hex(s) {
+        let i;
+        let l;
+        let n;
+        let o = '';
+        s += '';
+        for (i = 0, l = s.length; i < l; i++) {
+            n = s.charCodeAt(i).toString(16);
+            o += n.length < 2 ? `0${n}` : n;
+        }
+        return o;
+    }
+    const canvas = window.document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const txt = window.location.host;
+    if (ctx) {
+        ctx.textBaseline = 'top';
+        ctx.font = '14px \'Arial\'';
+    // @ts-expect-error
+        ctx.textBaseline = 'tencent';
+        ctx.fillStyle = '#f60';
+        ctx.fillRect(125, 1, 62, 20);
+        ctx.fillStyle = '#069';
+        ctx.fillText(txt, 2, 15);
+        ctx.fillStyle = 'rgba(102, 204, 0, 0.7)';
+        ctx.fillText(txt, 4, 17);
+    }
+    const b64 = canvas.toDataURL().replace('data:image/png;base64,', '');
+    const bin = atob(b64);
+    const fingerprint = bin2hex(bin.slice(-16, -12));
+    return fingerprint;
+}
+
+
+
+function anonymousLogin(url){
+
+// Define the request parameters
+const params = {
+  deviceID: createFingerprint()
+};
+
+// Make the fetch request
+fetch(url, {
+  method: 'POST', // Use POST method to send data
+  headers: {
+    'Content-Type': 'application/json' // Set the content type to JSON
+  },
+  body: JSON.stringify(params) // Convert the parameters to a JSON string
+})
+.then(response => {
+  if (!response.ok) {
+    throw new Error('Network response was not ok ' + response.statusText);
+  }
+  return response.json(); // Parse the JSON response
+})
+.then(data => {
+  console.log('Success:', data); // Log the response data
+})
+.catch(error => {
+  console.error('Error:', error); // Log any errors
+});
+
 }
