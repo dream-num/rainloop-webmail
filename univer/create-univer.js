@@ -59,7 +59,7 @@ function handleFile(ref,file){
 function queryAllUniverLink(ele, callback) {
 	ele.querySelectorAll('a').forEach((a)=>{
 		if(isUniverURL(a.href) && a.querySelector('.univer-container') === null){
-			a.insertAdjacentHTML('beforeend',`<div class="univer-container univer-theme" style="width: 600px;height: 360px;background: #eee;display: flex;align-items: center;justify-content: center;"><i class="icon-spinner animated" style="width: 40px;height: 40px;border-width: 6px;"></i></div>`);
+			a.insertAdjacentHTML('afterend',`<div class="univer-container univer-theme" style="width: 600px;height: 360px;background: #eee;display: flex;align-items: center;justify-content: center;"><i class="icon-spinner animated" style="width: 40px;height: 40px;border-width: 6px;"></i></div>`);
 			const container = a.querySelector('.univer-container');
 			const unitInfo = getUnitByURL(a.href);
 			if (unitInfo) {
@@ -252,12 +252,20 @@ function createUniverWithCollaboration(container, type, id) {
 			univer
 				.__getInjector()
 				.get(SnapshotService)
-				.loadDoc(unitId, 0);
+				.loadDoc(unitId, 0).then(()=>{
+					if(container.style.display === 'flex'){
+						container.style.display = 'block';
+					}
+				});
 		} else if (type === 2) {
 			univer
 				.__getInjector()
 				.get(SnapshotService)
-				.loadSheet(unitId, 0);
+				.loadSheet(unitId, 0).then(()=>{
+					if(container.style.display === 'flex'){
+						container.style.display = 'block';
+					}
+				});
 		}
 		
 	};
