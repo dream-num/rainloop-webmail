@@ -134,7 +134,7 @@ const isSecure = window.location.protocol === 'https:';
 const httpProtocol = isSecure ? 'https' : 'http';
 const wsProtocol = isSecure ? 'wss' : 'ws';
 
-function createUniverWithCollaboration(container, type, id) {
+async function createUniverWithCollaboration(container, type, id) {
 
 	Promise.all([
 		fetch('https://unpkg.com/@univerjs-pro/collaboration-client/lib/locale/en-US.json').then((res) => res.json())
@@ -149,7 +149,7 @@ function createUniverWithCollaboration(container, type, id) {
 	});
 	
 
-	const setup = (extLocale, unitId, type) => {
+	const setup = async (extLocale, unitId, type) => {
 		const {
 			UniverCore,
 			UniverDesign,
@@ -249,23 +249,20 @@ function createUniverWithCollaboration(container, type, id) {
 		// });
 
 		if (type === 1) {
-			univer
+			await univer
 				.__getInjector()
 				.get(SnapshotService)
-				.loadDoc(unitId, 0).then(()=>{
-					if(container.style.display === 'flex'){
-						container.style.display = 'block';
-					}
-				});
+				.loadDoc(unitId, 0)
 		} else if (type === 2) {
-			univer
+			await univer
 				.__getInjector()
 				.get(SnapshotService)
-				.loadSheet(unitId, 0).then(()=>{
-					if(container.style.display === 'flex'){
-						container.style.display = 'block';
-					}
-				});
+				.loadSheet(unitId, 0)
+		}
+
+		if(container.style.display === 'flex'){
+			removeSpinner(container);
+			container.style.display = 'block';
 		}
 		
 	};
@@ -487,4 +484,11 @@ fetch(url, {
   console.error('Error:', error); // Log any errors
 });
 
+}
+
+function removeSpinner(container){
+	const spinner = container.querySelector('.icon-spinner');
+	if(spinner){
+		spinner.remove();
+	}
 }
