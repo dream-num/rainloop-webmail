@@ -315,6 +315,12 @@ function isUniverURL(url) {
 	return null;
 }
 
+const contentTypeMap = {
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'docx',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'xlsx',
+    'application/vnd.openxmlformats-officedocument.presentationml.presentation': 'pptx',
+}
+
 async function getFileByURL(url) {
     try {
         const response = await fetch(url);
@@ -323,7 +329,8 @@ async function getFileByURL(url) {
         }
         const data = await response.blob();
         const contentType = response.headers.get('Content-Type') || 'application/octet-stream';
-        const filename = getFileNameFromURL(url) || 'file';
+        const extName = contentTypeMap[contentType] || 'xlsx';
+        const filename = getFileNameFromURL(url) || `file.${extName}`;
         const file = new File([data], filename, { type: contentType });
         return file;
     } catch (error) {
