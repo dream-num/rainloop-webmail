@@ -92,7 +92,7 @@ function createUniver(container) {
 		UniverSheetsUi,
 		UniverSheetsNumfmt,
 		UniverSheetsFormula,
-		UniverExchangeClient: { UniverExchangeClientPlugin, IExchangeService },
+		UniverExchangeClient: { UniverExchangeClientPlugin, IExchangeService, EXCHANGE_UPLOAD_FILE_SERVER_URL_KEY, EXCHANGE_IMPORT_SERVER_URL_KEY, EXCHANGE_EXPORT_SERVER_URL_KEY, EXCHANGE_GET_TASK_SERVER_URL_KEY, EXCHANGE_SIGN_URL_SERVER_URL_KEY  },
 		// UniverFacade,
 	} = window;
 
@@ -122,6 +122,15 @@ function createUniver(container) {
 	univer.registerPlugin(UniverSheetsUi.UniverSheetsUIPlugin);
 	univer.registerPlugin(UniverSheetsNumfmt.UniverSheetsNumfmtPlugin);
 	univer.registerPlugin(UniverSheetsFormula.UniverSheetsFormulaPlugin);
+
+	const injector = univer.__getInjector();
+	const configService = injector.get(UniverCore.IConfigService);
+
+	configService.setConfig(EXCHANGE_UPLOAD_FILE_SERVER_URL_KEY, `${httpProtocol}://${host}/universer-api/stream/file/upload`);
+	configService.setConfig(EXCHANGE_IMPORT_SERVER_URL_KEY, `${httpProtocol}://${host}/universer-api/exchange/{type}/import`);
+	configService.setConfig(EXCHANGE_EXPORT_SERVER_URL_KEY, `${httpProtocol}://${host}/universer-api/exchange/{type}/export`);
+	configService.setConfig(EXCHANGE_GET_TASK_SERVER_URL_KEY, `${httpProtocol}://${host}/universer-api/exchange/task/{taskID}`);
+	configService.setConfig(EXCHANGE_SIGN_URL_SERVER_URL_KEY, `${httpProtocol}://${host}/universer-api/file/{fileID}/sign-url`);
 
 	univer.registerPlugin(UniverExchangeClientPlugin)
 
