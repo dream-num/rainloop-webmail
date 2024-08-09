@@ -33,7 +33,7 @@ import {
 	inFocus,
 	removeSelection,
 	removeInFocus,
-	mailToHelper,
+	// mailToHelper,
 	isTransparent
 } from 'Common/Utils';
 
@@ -702,17 +702,17 @@ class MessageViewMailBoxUserView extends AbstractViewNext {
 		}
 
 		dom
-			.on('click', 'a', function(event) {
+			.on('click', 'a', function() {
 				// eslint-disable-line prefer-arrow-callback
 				// setup maito protocol
-				return !(
-					!!event &&
-					Magics.EventWhichMouseMiddle !== event.which &&
-					mailToHelper(
-						$(this).attr('href'),
-						Settings.capa(Capa.Composer) ? require('View/Popup/Compose') : null // eslint-disable-line no-invalid-this
-					)
-				);
+				// return !(
+				// 	!!event &&
+				// 	Magics.EventWhichMouseMiddle !== event.which &&
+				// 	mailToHelper(
+				// 		$(this).attr('href'),
+				// 		Settings.capa(Capa.Composer) ? require('View/Popup/Compose') : null // eslint-disable-line no-invalid-this
+				// 	)
+				// );
 			})
 			.on('click', '.attachmentsPlace .attachmentIconParent', (event) => {
 				if (event && event.stopPropagation) {
