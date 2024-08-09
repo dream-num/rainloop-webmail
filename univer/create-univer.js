@@ -58,6 +58,9 @@ function handleFile(ref,file){
 
 function queryAllUniverLink(ele, callback) {
 	ele.querySelectorAll('a').forEach((a)=>{
+
+		removeUnusedUniverContainer(a);
+		
 		if(isUniverURL(a.href) && !a.nextElementSibling?.classList.contains('univer-container')){
 			a.insertAdjacentHTML('afterend',`<div class="univer-container univer-theme" style="width: 600px;height: 360px;background: #eee;display: flex;align-items: center;justify-content: center;"><i class="icon-spinner animated" style="width: 40px;height: 40px;border-width: 6px;"></i></div>`);
 			const container = a.nextElementSibling;
@@ -69,6 +72,13 @@ function queryAllUniverLink(ele, callback) {
 			
 		}
 	})
+}
+
+function removeUnusedUniverContainer(a){
+	const div = a.nextElementSibling;
+	if(div && !div.classList.contains('univer-container') && div.querySelector('canvas')){
+		div.remove();
+	}
 }
 
 function createUniver(container) {
