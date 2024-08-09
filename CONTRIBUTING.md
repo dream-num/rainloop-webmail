@@ -108,6 +108,14 @@ Test user login at `http://localhost/rainloop/`
 9. refresh `http://localhost/rainloop/`
 ---
 
+### Deploy && Update
+
+1. Connect SSH 
+2. Enter the rainloop-webmail repository directory
+3. Update code: `git pull`
+4. Build front end: `gulp && node ./tasks/copyUniver.js`
+5. Restart server: `docker compose down && docker compose up -d`
+
 **Debugging JavaScript**
 
 1. Edit data/\_data_/\_default_/configs/application.ini
