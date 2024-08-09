@@ -170,7 +170,14 @@ async function createUniverWithCollaboration(container, type, id) {
 			UniverSheets,
 			UniverSheetsUi,
 			UniverCollaboration,
-			UniverCollaborationClient: {ANONYMOUS_LOGIN_URL},
+			UniverCollaborationClient: {
+				ANONYMOUS_LOGIN_URL,
+				SNAPSHOT_SERVER_URL_KEY,
+				COLLAB_SUBMIT_CHANGESET_URL_KEY,
+				COLLAB_WEB_SOCKET_URL_KEY,
+				AUTHZ_URL_KEY,
+				SEND_CHANGESET_TIMEOUT_KEY
+			},
 			UniverExchangeClient: { UniverExchangeClientPlugin, EXCHANGE_UPLOAD_FILE_SERVER_URL_KEY, EXCHANGE_IMPORT_SERVER_URL_KEY, EXCHANGE_EXPORT_SERVER_URL_KEY, EXCHANGE_GET_TASK_SERVER_URL_KEY, EXCHANGE_SIGN_URL_SERVER_URL_KEY },
 			UniverSheetsFormula: { UniverSheetsFormulaPlugin },
 		} = window;
@@ -212,20 +219,13 @@ async function createUniverWithCollaboration(container, type, id) {
 		const injector = univer.__getInjector();
 		const configService = injector.get(UniverCore.IConfigService);
 
-		// debug via reverse proxy
-		const {
-			SNAPSHOT_SERVER_URL_KEY,
-			COLLAB_SUBMIT_CHANGESET_URL_KEY,
-			COLLAB_WEB_SOCKET_URL_KEY,
-			AUTHZ_URL_KEY
-		} = UniverCollaborationClient;
-
 		// config collaboration endpoint
 		configService.setConfig(ANONYMOUS_LOGIN_URL, `${httpProtocol}://${host}/universer-api/anonymous`);
 		configService.setConfig(AUTHZ_URL_KEY, `${httpProtocol}://${host}/universer-api/authz`);
 		configService.setConfig(SNAPSHOT_SERVER_URL_KEY, `${httpProtocol}://${host}/universer-api/snapshot`);
 		configService.setConfig(COLLAB_SUBMIT_CHANGESET_URL_KEY, `${httpProtocol}://${host}/universer-api/comb`);
 		configService.setConfig(COLLAB_WEB_SOCKET_URL_KEY, `${wsProtocol}://${host}/universer-api/comb/connect`);
+		configService.setConfig(SEND_CHANGESET_TIMEOUT_KEY, 200);
 
 		configService.setConfig(EXCHANGE_UPLOAD_FILE_SERVER_URL_KEY, `${httpProtocol}://${host}/universer-api/stream/file/upload`);
 		configService.setConfig(EXCHANGE_IMPORT_SERVER_URL_KEY, `${httpProtocol}://${host}/universer-api/exchange/{type}/import`);
