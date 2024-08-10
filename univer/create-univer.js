@@ -574,8 +574,10 @@ function registerRichFeatures(univer){
 	univer.registerPlugin(UniverSheetsSortUIPlugin);
 
 	// pivot table
-	// univer.registerPlugin(UniverSheetsPivotTablePlugin);
-	// univer.registerPlugin(UniverSheetsPivotTableUIPlugin);
+	univer.registerPlugin(UniverSheetsPivotTablePlugin,{
+		isServer: true,
+	});
+	univer.registerPlugin(UniverSheetsPivotTableUIPlugin);
 
 	univer.registerPlugin(UniverSheetsHyperLinkUIPlugin);
 }
