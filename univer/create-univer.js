@@ -374,7 +374,7 @@ function initDialogDOM(params) {
             border-radius: 5px;
             position: relative;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            width: 95%;
+            width: 94%;
     		height: 90%;
             text-align: center;
         }
@@ -382,7 +382,10 @@ function initDialogDOM(params) {
             margin-top: 0;
         }
 		.dialog-univer-container{
-			height: calc(100% - 120px);
+			position: absolute;
+    		left: 20px;
+    		right: 20px;
+			height: calc(100% - 136px);
 			border: 1px solid rgba(var(--grey-300));
     		border-radius: 8px;
     		padding: 4px 0 4px 0;
@@ -398,7 +401,9 @@ function initDialogDOM(params) {
         }
         .confirm-btn {
             margin-top: 20px;
-            padding: 8px 20px;
+			position: absolute;
+			padding: 8px 20px;
+			bottom: 10px;
         }
             `
 
