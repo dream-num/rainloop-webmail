@@ -52,7 +52,7 @@ function handleFile(ref,file){
 
 	const exchangeService = createUniver();
 	exchangeService.importFileToUnitId(file, type).then(unitId => {
-		createUniverWithCollaboration(ref, type, unitId);
+		createUniverWithCollaboration(ref, type, unitId, true, true);
 	})
 }
 
@@ -153,7 +153,7 @@ const isSecure = window.location.protocol === 'https:';
 const httpProtocol = isSecure ? 'https' : 'http';
 const wsProtocol = isSecure ? 'wss' : 'ws';
 
-async function createUniverWithCollaboration(container, type, id) {
+async function createUniverWithCollaboration(container, type, id, showToolbar = false, showFooter = false) {
 
 	Promise.all([
 		fetch('https://unpkg.com/@univerjs-pro/collaboration-client/lib/locale/en-US.json').then((res) => res.json())
@@ -179,6 +179,7 @@ async function createUniverWithCollaboration(container, type, id) {
 			UniverUi,
 			UniverSheets,
 			UniverSheetsUi,
+			UniverSheetsNumfmt:{UniverSheetsNumfmtPlugin},
 			UniverCollaboration,
 			UniverCollaborationClient: {
 				ANONYMOUS_LOGIN_URL,
@@ -216,14 +217,18 @@ async function createUniverWithCollaboration(container, type, id) {
 
 		univer.registerPlugin(UniverUi.UniverUIPlugin, {
 			container,
-			header: false,
-			footer: false
+			header: showToolbar,
+			footer: showFooter
 		});
+
+		univer.registerPlugin(UniverSheetsNumfmtPlugin);
 
 		univer.registerPlugin(UniverDocsUi.UniverDocsUIPlugin);
 
 		univer.registerPlugin(UniverSheets.UniverSheetsPlugin);
 		univer.registerPlugin(UniverSheetsUi.UniverSheetsUIPlugin);
+
+		registerRichFeatures(univer);
 
 		//   pro
 		const injector = univer.__getInjector();
@@ -517,4 +522,56 @@ function removeSpinner(container){
 	if(spinner){
 		spinner.remove();
 	}
+}
+
+
+function registerRichFeatures(univer){
+	const {
+		UniverSheetsZenEditor: {UniverSheetsZenEditorPlugin},
+		UniverSheetsFindReplace: {UniverSheetsFindReplacePlugin},
+		UniverSheetsConditionalFormatting: {UniverSheetsConditionalFormattingUIPlugin},
+		UniverDataValidation: {UniverDataValidationPlugin},
+		UniverSheetsDataValidation: {UniverSheetsDataValidationPlugin},
+		UniverSheetsFilter: {UniverSheetsFilterPlugin},
+		UniverSheetsFilterUI: {UniverSheetsFilterUIPlugin},
+		UniverDrawing: {UniverDrawingUIPlugin},
+		UniverSheetsDrawing: {UniverSheetsDrawingPlugin},
+		UniverSheetsDrawingUI: {UniverSheetsDrawingUIPlugin},
+		UniverSheetsSort: {UniverSheetsSortPlugin},
+		UniverSheetsSortUI: {UniverSheetsSortUIPlugin},
+		UniverSheetsPivotTable: {UniverSheetsPivotTablePlugin},
+		UniverSheetsPivotTableUI: {UniverSheetsPivotTableUIPlugin},
+		UniverSheetsHyperLinkUI: {UniverSheetsHyperLinkUIPlugin},
+	} = window;
+	// zen editor
+	univer.registerPlugin(UniverSheetsZenEditorPlugin);
+
+	// find replace
+	univer.registerPlugin(UniverSheetsFindReplacePlugin);
+
+	// conditional formatting
+	univer.registerPlugin(UniverSheetsConditionalFormattingUIPlugin);
+
+	// data validation
+	univer.registerPlugin(UniverDataValidationPlugin);
+	univer.registerPlugin(UniverSheetsDataValidationPlugin);
+
+	// filter
+	univer.registerPlugin(UniverSheetsFilterPlugin);
+	univer.registerPlugin(UniverSheetsFilterUIPlugin);
+
+	// drawing
+	univer.registerPlugin(UniverDrawingUIPlugin);
+	univer.registerPlugin(UniverSheetsDrawingPlugin);
+	univer.registerPlugin(UniverSheetsDrawingUIPlugin);
+
+	// sort
+	univer.registerPlugin(UniverSheetsSortPlugin);
+	univer.registerPlugin(UniverSheetsSortUIPlugin);
+
+	// pivot table
+	univer.registerPlugin(UniverSheetsPivotTablePlugin);
+	univer.registerPlugin(UniverSheetsPivotTableUIPlugin);
+
+	univer.registerPlugin(UniverSheetsHyperLinkUIPlugin);
 }

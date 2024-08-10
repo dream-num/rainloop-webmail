@@ -16,6 +16,7 @@ const copyFileSync = (source, target) => {
 };
 copyFileSync('univer/univer.css', config.paths.staticCSS + 'univer.css');
 copyFileSync('univer/collaboration-client.css', config.paths.staticCSS + 'collaboration-client.css');
+copyFileSync('univer/sheets-pivot-ui.css', config.paths.staticCSS + 'sheets-pivot-ui.css');
 
 copyFileSync('univer/collaboration-client.js', config.paths.staticJS + 'collaboration-client.js');
 copyFileSync('univer/collaboration.js', config.paths.staticJS + 'collaboration.js');
@@ -24,6 +25,9 @@ copyFileSync('univer/en-US.js', config.paths.staticJS + 'en-US.js');
 copyFileSync('univer/lodash.js', config.paths.staticJS + 'lodash.js');
 copyFileSync('univer/univer.full.umd.js', config.paths.staticJS + 'univer.full.umd.js');
 copyFileSync('univer/exchange-client.js', config.paths.staticJS + 'exchange-client.js');
+copyFileSync('univer/pivot-engine.js', config.paths.staticJS + 'pivot-engine.js');
+copyFileSync('univer/sheets-pivot.js', config.paths.staticJS + 'sheets-pivot.js');
+copyFileSync('univer/sheets-pivot-ui.js', config.paths.staticJS + 'sheets-pivot-ui.js');
 
 // ANSI 转义码，用于绿色文本
 const greenText = '\x1b[32m%s\x1b[0m';
